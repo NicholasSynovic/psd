@@ -1,0 +1,7 @@
+{
+    "name": "Python Source Downloader",
+    "extensions": [
+        "ms-python.python"
+    ],
+    "image": "python:3.9.6-buster"
+}
