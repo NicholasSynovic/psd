@@ -1,3 +1,4 @@
 requests
 isort
 black
+bs4

@@ -14,8 +14,4 @@ def getAHREF():
     pass
 
 
-print(getFTPRoot())
-
-
 if __name__ == "__main__":
-    pass
