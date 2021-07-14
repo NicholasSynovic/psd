@@ -29,4 +29,4 @@ def getLinks(soup: BeautifulSoup) -> dict:
 if __name__ == "__main__":
     site = getFTPRoot()
     soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
-    print(getLinks(soup))
+    links: dict = getLinks(soup)
