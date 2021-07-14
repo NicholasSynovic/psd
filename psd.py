@@ -1,4 +1,6 @@
 from requests import get, Response
+from bs4 import BeautifulSoup, ResultSet
+from bs4.element import Tag
 
 
 def getFTPRoot() -> str:
@@ -6,12 +8,25 @@ def getFTPRoot() -> str:
     return html.text
 
 
-def getAText():
-    pass
+def getLinks(soup: BeautifulSoup) -> dict:
+    links: dict = {}
+    tags: ResultSet = soup.find_all(name="a")
 
+    tag: Tag
+    for tag in tags:
+        key: str = tag.text.replace("/", "")
+        value: str = "https://www.python.org/ftp/python/" + tag.get("href")
 
-def getAHREF():
-    pass
+        try:
+            int(key[0])
+            links[key] = value
+        except ValueError:
+            pass
+
+    return links
 
 
 if __name__ == "__main__":
+    site = getFTPRoot()
+    soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
+    print(getLinks(soup))
