@@ -1,11 +1,11 @@
-from requests import get, Response
-from bs4 import BeautifulSoup, ResultSet
-from bs4.element import Tag
-from requests.api import options
-from simple_term_menu import TerminalMenu
 import re
 from re import Pattern
+
+from bs4 import BeautifulSoup, ResultSet
+from bs4.element import Tag
 from progress.spinner import MoonSpinner
+from requests import Response, get
+from simple_term_menu import TerminalMenu
 
 
 def getHTML(url: str = "https://www.python.org/ftp/python/") -> str:
