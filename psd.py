@@ -7,6 +7,28 @@ from progress.spinner import MoonSpinner
 from requests import Response, get
 from simple_term_menu import TerminalMenu
 
+import argparse
+from argparse import Namespace
+
+
+def cmdArguements() -> Namespace:
+    parser = argparse.ArgumentParser(
+        prog="Python Source Downloader",
+        description="Download Python source code, with Python!",
+    )
+
+    parser.add_argument(
+        "-f",
+        "--filter",
+        nargs=1,
+        type=str,
+        required=False,
+        default="",
+        help="A substring of a version. EX: 3.9.6",
+    )
+
+    return parser.parse_args()
+
 
 def getHTML(url: str = "https://www.python.org/ftp/python/") -> str:
     html: Response = get(url)
@@ -52,7 +74,7 @@ def removeExtras(data: dict, removeNonVersions: bool, filter: str = "") -> dict:
 def getUserSelection(options: list) -> str:
     terminal_menu = TerminalMenu(
         options,
-        title="Python Version",
+        title="Select Python Version",
         status_bar='Use "/" to search for a specific version. ENTER to select.',
         status_bar_style=("fg_black", "bg_blue"),
     )
@@ -72,12 +94,19 @@ def download(filename: str, url: str) -> bool:
 
 
 if __name__ == "__main__":
+    arg = cmdArguements()
     site = getHTML()
     soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
     links: dict = getLinks(soup, "")
-    links = removeExtras(data=links, removeNonVersions=True)
+    try:
+        links = removeExtras(data=links, removeNonVersions=True, filter=arg.filter[0])
+    except IndexError:
+        links = removeExtras(data=links, removeNonVersions=True, filter=arg.filter)
 
-    pythonVersion: str = getUserSelection(list(links.keys()))
+    if len(links) == 1:
+        pythonVersion: str = list(links.keys())[0]
+    else:
+        pythonVersion: str = getUserSelection(list(links.keys()))
 
     site = getHTML(url=links[pythonVersion])
     soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
@@ -89,6 +118,9 @@ if __name__ == "__main__":
     else:
         links = removeExtras(data=links, removeNonVersions=False, filter=".tgz")
 
-    downloadKey: str = getUserSelection(list(links.keys()))
+    if len(links) == 1:
+        downloadKey: str = list(links.keys())[0]
+    else:
+        downloadKey: str = getUserSelection(list(links.keys()))
 
     download(filename=downloadKey, url=links[downloadKey])
