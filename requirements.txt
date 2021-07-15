@@ -3,3 +3,4 @@ isort
 black
 bs4
 simple-term-menu
+progress

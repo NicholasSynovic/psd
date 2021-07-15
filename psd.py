@@ -5,6 +5,7 @@ from requests.api import options
 from simple_term_menu import TerminalMenu
 import re
 from re import Pattern
+from progress.spinner import MoonSpinner
 
 
 def getHTML(url: str = "https://www.python.org/ftp/python/") -> str:
@@ -12,7 +13,7 @@ def getHTML(url: str = "https://www.python.org/ftp/python/") -> str:
     return html.text
 
 
-def getLinks(soup: BeautifulSoup, filter: str = "") -> dict:
+def getLinks(soup: BeautifulSoup, version: str = "", filter: str = "") -> dict:
     links: dict = {}
     regex: Pattern = re.compile(f"\\b{filter}\\b$")
     tags: ResultSet = soup.find_all(name="a")
@@ -20,7 +21,7 @@ def getLinks(soup: BeautifulSoup, filter: str = "") -> dict:
     tag: Tag
     for tag in tags:
         key: str = tag.text.replace("/", "")
-        value: str = "https://www.python.org/ftp/python/" + tag.get("href")
+        value: str = "https://www.python.org/ftp/python/" + version + tag.get("href")
 
         if re.search(regex, key) is not None:
             links[key] = value
@@ -57,6 +58,17 @@ def getUserSelection(options: list) -> str:
     return options[menu_entry_index]
 
 
+def download(filename: str, url: str) -> bool:
+    with MoonSpinner(f"Downloading {filename}... ") as spinner:
+        with get(url, stream=True) as r:
+            r.raise_for_status()
+            with open(filename, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+                    spinner.next()
+    return filename
+
+
 if __name__ == "__main__":
     site = getHTML()
     soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
@@ -67,8 +79,14 @@ if __name__ == "__main__":
 
     site = getHTML(url=links[pythonVersion])
     soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
-    links: dict = getLinks(soup, filter=".tgz")
-    links = removeExtras(data=links, removeNonVersions=False, filter=".tgz")
+    links: dict = getLinks(soup, version=pythonVersion + "/", filter=".tgz")
+
+    if len(links) == 0:
+        links: dict = getLinks(soup, version=pythonVersion + "/", filter=".gz")
+        links = removeExtras(data=links, removeNonVersions=False, filter=".gz")
+    else:
+        links = removeExtras(data=links, removeNonVersions=False, filter=".tgz")
 
     downloadKey: str = getUserSelection(list(links.keys()))
-    print(links[downloadKey])
+
+    download(filename=downloadKey, url=links[downloadKey])
