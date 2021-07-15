@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup, ResultSet
 from bs4.element import Tag
 from requests.api import options
 from simple_term_menu import TerminalMenu
+import re
 
 
 def getHTML(url: str = "https://www.python.org/ftp/python/") -> str:
@@ -19,13 +20,12 @@ def getLinks(soup: BeautifulSoup, filter: str = "") -> dict:
         key: str = tag.text.replace("/", "")
         value: str = "https://www.python.org/ftp/python/" + tag.get("href")
 
-        if key.find(filter) != -1:
+        if re.search(f"\\b{filter}\\b", key) is not None:
             try:
                 int(key[0])
                 links[key] = value
             except ValueError:
                 pass
-
     return links
 
 
@@ -43,6 +43,10 @@ def getUserSelection(options: list) -> str:
 if __name__ == "__main__":
     site = getHTML()
     soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
-    links: dict = getLinks(soup)
-    print(links.keys())
+    links: dict = getLinks(soup, "3.1")
+
     pythonVersion: str = getUserSelection(list(links.keys()))
+
+    site = getHTML(url=links[pythonVersion])
+    soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
+    links: dict = getLinks(soup)
