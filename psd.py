@@ -37,7 +37,7 @@ def getUserSelection(options: list) -> str:
         status_bar_style=("fg_black", "bg_blue"),
     )
     menu_entry_index = terminal_menu.show()
-    print(options[menu_entry_index])
+    return options[menu_entry_index]
 
 
 if __name__ == "__main__":
