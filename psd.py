@@ -1,4 +1,6 @@
+import argparse
 import re
+from argparse import Namespace
 from re import Pattern
 
 from bs4 import BeautifulSoup, ResultSet
@@ -6,9 +8,6 @@ from bs4.element import Tag
 from progress.spinner import MoonSpinner
 from requests import Response, get
 from simple_term_menu import TerminalMenu
-
-import argparse
-from argparse import Namespace
 
 
 def cmdArguements() -> Namespace:
