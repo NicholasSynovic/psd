@@ -29,7 +29,7 @@ def cmdArguements() -> Namespace:
     return parser.parse_args()
 
 
-def getHTML(url: str = "https://www.python.org/ftp/python/") -> str:
+def getHTML(url: str) -> str:
     html: Response = get(url)
     return html.text
 
@@ -93,33 +93,39 @@ def download(filename: str, url: str) -> bool:
 
 
 if __name__ == "__main__":
+
+    def _getValueOrDefault(data: dict) -> str:
+        if len(data) == 1:
+            value: str = list(data.keys())[0]
+        else:
+            value: str = getUserSelection(list(data.keys()))
+        return value
+
+    def _setupSoup(url: str) -> BeautifulSoup:
+        site = getHTML(url)
+        soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
+        return soup
+
     arg = cmdArguements()
-    site = getHTML()
-    soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
+    soup: BeautifulSoup = _setupSoup("https://www.python.org/ftp/python/")
     links: dict = getLinks(soup, "")
+
     try:
-        links = removeExtras(data=links, removeNonVersions=True, filter=arg.filter[0])
+        links = removeExtras(links, removeNonVersions=True, filter=arg.filter[0])
     except IndexError:
-        links = removeExtras(data=links, removeNonVersions=True, filter=arg.filter)
+        links = removeExtras(links, removeNonVersions=True, filter=arg.filter)
 
-    if len(links) == 1:
-        pythonVersion: str = list(links.keys())[0]
-    else:
-        pythonVersion: str = getUserSelection(list(links.keys()))
+    pythonVersion: str = _getValueOrDefault(links)
 
-    site = getHTML(url=links[pythonVersion])
-    soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
+    soup = _setupSoup(links[pythonVersion])
     links: dict = getLinks(soup, version=pythonVersion + "/", filter=".tgz")
 
     if len(links) == 0:
         links: dict = getLinks(soup, version=pythonVersion + "/", filter=".gz")
-        links = removeExtras(data=links, removeNonVersions=False, filter=".gz")
+        links = removeExtras(links, removeNonVersions=False, filter=".gz")
     else:
-        links = removeExtras(data=links, removeNonVersions=False, filter=".tgz")
+        links = removeExtras(links, removeNonVersions=False, filter=".tgz")
 
-    if len(links) == 1:
-        downloadKey: str = list(links.keys())[0]
-    else:
-        downloadKey: str = getUserSelection(list(links.keys()))
+    downloadKey: str = _getValueOrDefault(links)
 
     download(filename=downloadKey, url=links[downloadKey])
