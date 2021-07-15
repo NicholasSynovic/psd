@@ -25,12 +25,14 @@ def getLinks(soup: BeautifulSoup, version: str = "", filter: str = "") -> dict:
 
         if re.search(regex, key) is not None:
             links[key] = value
+
     return links
 
 
 def removeExtras(data: dict, removeNonVersions: bool, filter: str = "") -> dict:
     temp: dict = {}
     regex: Pattern = re.compile(f"\\b{filter}\\b$")
+
     if removeNonVersions:
         for key in data.keys():
             try:
@@ -42,8 +44,8 @@ def removeExtras(data: dict, removeNonVersions: bool, filter: str = "") -> dict:
     else:
         for key in data.keys():
             if re.search(regex, key) is not None:
-
                 temp[key] = data[key]
+
     return temp
 
 
