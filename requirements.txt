@@ -2,5 +2,4 @@ requests
 isort
 black
 bs4
-whaaaaat
-progress
+simple-term-menu

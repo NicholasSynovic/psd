@@ -26,7 +26,12 @@ def getLinks(soup: BeautifulSoup) -> dict:
     return links
 
 
+def getUserSelection(choices: list) -> str:
+    pass
+
+
 if __name__ == "__main__":
     site = getFTPRoot()
     soup: BeautifulSoup = BeautifulSoup(markup=site, features="html.parser")
     links: dict = getLinks(soup)
+    getUserSelection(list(links.keys()))
